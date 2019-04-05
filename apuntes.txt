@@ -1,0 +1,7 @@
+El archivo foto.dat contiene una foto de 400x400
+Contiene grupos de 3 unsigned char
+
+unsigned char[3] = [R,G,B]
+
+La primera tripleta es la esquina superior izquierda
+la tripleta 399 es la esquina superior derecha.
