@@ -4,3 +4,6 @@ Se desea crear un programa de renderizado gráfico con MPI. Un proceso se encarg
 ## Versiones
 ### Versión 0.5
  - Esqueleto del código listo.
+
+### Versión 0.8
+ - Código del padre listo.
