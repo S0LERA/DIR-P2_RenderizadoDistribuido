@@ -65,8 +65,8 @@ int main(int argc, char *argv[])
       MPI_Comm commPadre;
       int tag;
       MPI_Status status;
-      int buf[5];
       int hijos = 4;
+      int buf[5];
       int error[hijos];
 
       MPI_Init(&argc, &argv);
@@ -75,17 +75,17 @@ int main(int argc, char *argv[])
       MPI_Comm_get_parent(&commPadre);
       if ((commPadre == MPI_COMM_NULL) && (rank == 0))
       {
-
             initX();
 
             /* Codigo del maestro */
-            MPI_Comm_spawn("spawnP2", MPI_ARGV_NULL, hijos, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &commPadre, error);
+            MPI_Comm_spawn("pract2", MPI_ARGV_NULL, hijos, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &commPadre, error);
 
-            for (int i = 0; i < 160000; i++)
+            for (int i = 0; i < 400*400; i++)
             {
                   MPI_Recv(&buf, 5, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, commPadre, MPI_STATUS_IGNORE);
                   dibujaPunto(buf[0], buf[1], buf[2], buf[3], buf[4]);
             }
+            sleep(5);
 
             /*En algun momento dibujamos puntos en la ventana algo como
 	dibujaPunto(x,y,r,g,b);  */
@@ -94,7 +94,42 @@ int main(int argc, char *argv[])
       {
             /* Codigo de todos los trabajadores */
             /* El archivo sobre el que debemos trabajar es foto.dat */
+            MPI_File f;
+            int lineas_hijo = 400 / hijos;
+            int linea_inicio = lineas_hijo * rank;
+            int linea_final = 0;
+            if (rank == hijos - 1)
+            {
+                  linea_final = 400;
+            }
+            else
+            {
+                  linea_final = linea_inicio + lineas_hijo;
+            }
+
+            int bloque = lineas_hijo * 400 * 3 * sizeof(unsigned char);
+            int bloque_hijo = bloque * rank;
+            unsigned char tripleta[3];
+
+            MPI_File_open(MPI_COMM_WORLD, "foto.dat", MPI_MODE_RDONLY, MPI_INFO_NULL, &f);
+            MPI_File_set_view(f, bloque_hijo, MPI_UNSIGNED_CHAR, MPI_UNSIGNED_CHAR, "native", MPI_INFO_NULL);
+
+            for (int i = linea_inicio; i < linea_final; i++)
+            {
+                  for (int j = 0; j < 400; j++)
+                  {
+                        MPI_File_read(f, tripleta, 3, MPI_UNSIGNED_CHAR, &status);
+                        buf[0] = j;
+                        buf[1] = i;
+                        buf[2] = (int)tripleta[0];
+                        buf[3] = (int)tripleta[1];
+                        buf[4] = (int)tripleta[2];
+                        MPI_Send(&buf, 5, MPI_INT, 0, 1, commPadre);
+                  }
+            }
+            MPI_File_close(&f);
       }
 
       MPI_Finalize();
+      return 0;
 }

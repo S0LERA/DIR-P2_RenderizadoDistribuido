@@ -7,3 +7,10 @@ Se desea crear un programa de renderizado gráfico con MPI. Un proceso se encarg
 
 ### Versión 0.8
  - Código del padre listo.
+
+### Versión 1.5
+ - Programa completado.
+ - Añadido Makefile.
+
+### Versión 1.8
+ - Documentación Añadida.
